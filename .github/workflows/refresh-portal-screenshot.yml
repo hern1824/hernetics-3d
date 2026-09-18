@@ -1,0 +1,28 @@
+name: Refresh portal screenshot
+on:
+  push:
+    paths:
+      - 'portal-screenshot.jpg.b64'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode JPEG and commit
+        run: |
+          set -euo pipefail
+          test -f portal-screenshot.jpg.b64
+          base64 -d portal-screenshot.jpg.b64 > portal-screenshot.jpg
+          ls -la portal-screenshot.jpg
+          python3 -c "d=open('portal-screenshot.jpg','rb').read(3); assert d==bytes([255,216,255]), d"
+          git config user.name "hern1824"
+          git config user.email "hernkim@gmail.com"
+          git add portal-screenshot.jpg
+          git rm -f portal-screenshot.jpg.b64
+          rm -f .github/workflows/refresh-portal-screenshot.yml
+          git add -A .github/workflows/refresh-portal-screenshot.yml || true
+          git commit -m "Refresh START Portal marketing screenshot"
+          git push
