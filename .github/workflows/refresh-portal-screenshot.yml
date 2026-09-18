@@ -2,7 +2,7 @@ name: Refresh portal screenshot
 on:
   push:
     paths:
-      - 'portal-screenshot.jpg.b64'
+      - portal-screenshot.jpg.b64.p0
   workflow_dispatch:
 permissions:
   contents: write
@@ -14,15 +14,16 @@ jobs:
       - name: Decode JPEG and commit
         run: |
           set -euo pipefail
-          test -f portal-screenshot.jpg.b64
-          base64 -d portal-screenshot.jpg.b64 > portal-screenshot.jpg
+          cat portal-screenshot.jpg.b64.p0 portal-screenshot.jpg.b64.p1 portal-screenshot.jpg.b64.p2 portal-screenshot.jpg.b64.p3 > /tmp/all.b64
+          base64 -d /tmp/all.b64 > portal-screenshot.jpg
           ls -la portal-screenshot.jpg
-          python3 -c "d=open('portal-screenshot.jpg','rb').read(3); assert d==bytes([255,216,255]), d"
-          git config user.name "hern1824"
-          git config user.email "hernkim@gmail.com"
+          python3 -c 'd=open("portal-screenshot.jpg","rb").read(3); assert d==bytes([255,216,255]), d'
+          git config user.name hern1824
+          git config user.email hernkim@gmail.com
           git add portal-screenshot.jpg
-          git rm -f portal-screenshot.jpg.b64
+          git rm -f portal-screenshot.jpg.b64.p0 portal-screenshot.jpg.b64.p1 portal-screenshot.jpg.b64.p2 portal-screenshot.jpg.b64.p3 || true
+          git rm -f portal-screenshot.jpg.b64.part04 _agent_write_probe.txt _agent_tiny_test.jpg _agent_chunk_probe.txt || true
           rm -f .github/workflows/refresh-portal-screenshot.yml
-          git add -A .github/workflows/refresh-portal-screenshot.yml || true
+          git add -A
           git commit -m "Refresh START Portal marketing screenshot"
           git push
